@@ -1,0 +1,49 @@
+<!-- Copyright © 2010-2012 HTTPS Everywhere authors. All rights reserved.
+ * Use of this source code is governed by a GPL v2+ license that can be
+ * found in the LICENSE file. -->
+<head>
+<title></title>
+
+<!-- Local copy of chrome://resources/css/chrome_shared.css -->
+<link href="chrome-resources/css/chrome_shared.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="jquery.js"></script>
+<link href="popup.css" rel="stylesheet" type="text/css"/>
+<script src="popup.js"></script>
+
+</head>
+
+<!----------------------->
+
+<body>
+
+<header>
+  <h1 id="ext_name"></h1>
+</header>
+
+<section id="BasicStats" class="stats">
+  <h3 i18n="basic_stats">Basic statistics</h3>
+  <p>Total tabs created: <span id="created"></span></p>
+  <p>Total tabs destroyed: <span id="destroyed"></span></p>
+  <p>Ratio destroyed/created: <span id="ratio"></span></p>
+</section>
+
+<section id="Close" class="close">
+  <h3 i18n="Close">Close all tabs except active</h3>
+  <button id="close_all" type="button">Clean!</button>
+</section>
+
+<section id="Options" class="options">
+  <h3 i18n="Options">Options</h3>
+Suspend tabs when more than <input id="mintabs" type="text" value="10">tabs are open</<input><br><br>
+Suspend when tab has not been activated for <input id="mintime" type="text" value="10">minutes</<input><br><br>
+<input id="send-data-checkbox" type="checkbox" value="send"> Send tab statistics (involves the use of cookies)</<input>
+</section>
+
+<footer>
+  <!-- TODO: find better domain... -->
+  <a id="whatIsThis" href="http://homes.esat.kuleuven.be/~mjuarezm/tab_stats.html" target="_blank" tabindex="-1" i18n="chrome_what_is_this">What is this</a>
+  <p><small>(Version: <span id="currentversion"></span>)</small></p>
+</footer>
+
+</body>
