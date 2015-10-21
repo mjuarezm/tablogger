@@ -235,7 +235,7 @@ var tablogs = (function() {
             tabid = 0;
         }
         low = offset << 0x2 | EVENT[name];
-        return util.pack(util.getIntBytes(tabid << 0x18 | low));
+        return util.getIntBytes(tabid << 0x18 | low);
     }
 
 
@@ -258,9 +258,6 @@ var tablogs = (function() {
 
         // Size of an encoded event record in bytes.
         RECORD_SIZE: 5,
-
-        // Maximum number of records that the extension can send in one batch.
-        MAX_RECORDS: 49,
 
         // Whether we log the tab 'onActivate' events.
         LOG_ACTIVATED: false,
@@ -303,20 +300,22 @@ var tablogs = (function() {
          */
         pushRecord: function(tabId, name, ts) {
             // Push to temporary object;
-            this.TEMP_RECORDS.push(encodeAttributes(tabId, name, ts));
+            this.TEMP_RECORDS = this.TEMP_RECORDS.concat(encodeAttributes(tabId, name, ts));
             // Copy object to local storage.
             chrome.storage.sync.set({
                 'tempRecords': this.TEMP_RECORDS
             });
             // Send stats to server if we have filled a batch of records.
-            if (this.TEMP_RECORDS.length * this.RECORD_SIZE >= this.MAX_MSG_SIZE) {
+            if (this.TEMP_RECORDS.length >= this.MAX_MSG_SIZE) {
+                var sl = this.TEMP_RECORDS.slice(0, this.MAX_MSG_SIZE - this.TEMP_RECORDS.length);
+                this.TEMP_RECORDS = this.TEMP_RECORDS.slice(this.MAX_MSG_SIZE - this.TEMP_RECORDS.length);
                 chrome.storage.sync.get({
                     'sendStats': false
                 }, function(item) {
-                    // Get slice of bytes
-                    var sl = tablogs.TEMP_RECORDS.slice(0, tablogs.MAX_RECORDS);
+                    // Back bytes to string
+                    var packed = util.pack(sl);
                     // Encrypt
-                    var encrypted = util.encrypt(sl.join(''));
+                    var encrypted = util.encrypt(packed);
                     // Encode and post to server.
                     tablogs.postToServer(util.base64EncodeUrl(encrypted));
                 });
