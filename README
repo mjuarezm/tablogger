@@ -10,6 +10,7 @@ Description
 
 Besides obtaining benefits on their productivity, users can contribute to research on computer security by sending statistics about their tab usage. Previous studies on the usage of tabs are few and limited by the small amount of participants and the methodology used for the collection of statistics. Even though the usage of tabs is not yet well understood, it is hypothesized that a specific behaviour might help protecting the user against security attacks.
 
+More information: homes.esat.kuleuven.be/~mjuarezm/tab_stats.html
 
 Statistics Collection
 ---------------------
@@ -22,7 +23,9 @@ The extension collects the following attributes:
 
 * Time between the current event and the previous one.
 
-The collection of statistics about tab usage is not 
+The URL is not collected in any case and all the data above is stored in the HTML5 local storage associated to the extension.
+
+These data are encrypted and sent to a database in central web server via HTTPS.
 
 
 Who we are
@@ -30,9 +33,9 @@ Who we are
 
 We are PhD students on computer security with the following affiliations:
 
+* Giovanni Cherubin <giovanni.cherubin@gmail.com>
 
-* Gio Cherubin
+* Jamie Hayes <jamie.hayes.14@ucl.ac.uk>
 
-* Jamie Hayes
+* Marc Juarez <marc.juarez@kuleuven.be>
 
-* Marc Juarez

@@ -205,11 +205,20 @@ var util = (function() {
         /**
          * Generate a unique ID of the extension using the crypto standard API for web.
          * For more info see: https://developer.mozilla.org/en-US/docs/Web/API/RandomSource/getRandomValues
+         * This is a modified version of boofa and ripper234 answers in: https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+         * We acknowledge the authors.
          */
         getID: function() {
-            var buf = new Uint32Array(1);
+            var buf = new Uint16Array(8);
             window.crypto.getRandomValues(buf);
-            return buf[0];
+            var S4 = function(num) {
+                var ret = num.toString(16);
+                while(ret.length < 4){
+                    ret = "0"+ret;
+                }
+                return ret;
+            };
+            return (S4(buf[0])+S4(buf[1])+"-"+S4(buf[2])+"-"+S4(buf[3])+"-"+S4(buf[4])+"-"+S4(buf[5])+S4(buf[6])+S4(buf[7]));
         },
 
 

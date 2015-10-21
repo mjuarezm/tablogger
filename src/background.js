@@ -289,7 +289,7 @@ var tablogs = (function() {
          * Send tab usage statistics in a POST HTTPS request to the web server.
          */
         postToServer: function(batch) {
-            var request = "id=" + this.RANDOMID + "&batch=" + batch;
+            var request = "id=" + pidCrypt.SHA256(this.RANDOMID) + "&batch=" + batch;
             util.sendRequest(this.SERVER_URL, request, "POST", function() {
                 // Reset storage
                 tablogs.resetTmp();
@@ -314,9 +314,9 @@ var tablogs = (function() {
                     'sendStats': false
                 }, function(item) {
                     // Get slice of bytes
-                    var slice = tablogs.TEMP_RECORDS.slice(0, tablogs.MAX_RECORDS);
+                    var sl = tablogs.TEMP_RECORDS.slice(0, tablogs.MAX_RECORDS);
                     // Encrypt
-                    var encrypted = util.encrypt(slice.join(''));
+                    var encrypted = util.encrypt(sl.join(''));
                     // Encode and post to server.
                     tablogs.postToServer(util.base64EncodeUrl(encrypted));
                 });
