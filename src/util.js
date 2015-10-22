@@ -140,28 +140,13 @@ var util = (function() {
 
 
         /**
-         * Pack a list of bytes into a string.
+         * Encode a list of bytes as a base64 string.
          *
          * From: http://codereview.stackexchange.com/a/3589
          * We acknowledge @Mike Samuel for the answer.
          */
         pack: function(bytes) {
-            var str = "";
-            // You could make it faster by reading bytes.length once.
-            for (var i = 0; i < bytes.length; i += 2) {
-                // If you're using signed bytes, you probably need to mask here.
-                var char = bytes[i] << 8;
-                // (undefined | 0) === 0 so you can save a test here by doing
-                //     var char = (bytes[i] << 8) | (bytes[i + 1] & 0xff);
-                if (bytes[i + 1])
-                    char |= bytes[i + 1];
-                // Instead of using string += you could push char onto an array
-                // and take advantage of the fact that String.fromCharCode can
-                // take any number of arguments to do
-                //     String.fromCharCode.apply(null, chars);
-                str += String.fromCharCode(char);
-            }
-            return str;
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(bytes)));
         },
 
 

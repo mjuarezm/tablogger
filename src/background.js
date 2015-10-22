@@ -259,6 +259,9 @@ var tablogs = (function() {
         // Size of an encoded event record in bytes.
         RECORD_SIZE: 5,
 
+        // Max bytes that can be encoded in base64 as a message to be encrypted
+        MAX_SIZE_BASE64: 180,
+
         // Whether we log the tab 'onActivate' events.
         LOG_ACTIVATED: false,
 
@@ -306,14 +309,15 @@ var tablogs = (function() {
                 'tempRecords': this.TEMP_RECORDS
             });
             // Send stats to server if we have filled a batch of records.
-            if (this.TEMP_RECORDS.length >= this.MAX_MSG_SIZE) {
-                var sl = this.TEMP_RECORDS.slice(0, this.MAX_MSG_SIZE - this.TEMP_RECORDS.length);
-                this.TEMP_RECORDS = this.TEMP_RECORDS.slice(this.MAX_MSG_SIZE - this.TEMP_RECORDS.length);
+            if (this.TEMP_RECORDS.length >= this.MAX_SIZE_BASE64) {
+                var sl = this.TEMP_RECORDS.slice(0, this.MAX_SIZE_BASE64);
+                this.TEMP_RECORDS = this.TEMP_RECORDS.slice(this.MAX_SIZE_BASE64);
                 chrome.storage.sync.get({
                     'sendStats': false
                 }, function(item) {
                     // Back bytes to string
                     var packed = util.pack(sl);
+                    console.log(packed);
                     // Encrypt
                     var encrypted = util.encrypt(packed);
                     // Encode and post to server.
