@@ -1,46 +1,95 @@
 <!-- Copyright © 2010-2012 HTTPS Everywhere authors. All rights reserved.
  * Use of this source code is governed by a GPL v2+ license that can be
  * found in the LICENSE file. -->
+<!DOCTYPE html>
+<html>
 <head>
-<title></title>
-
-<!-- Local copy of chrome://resources/css/chrome_shared.css -->
-<link href="chrome-resources/css/chrome_shared.css" rel="stylesheet" type="text/css"/>
-<link href="popup.css" rel="stylesheet" type="text/css"/>
-<script src="popup.js"></script>
-
+    <title>
+    </title><!-- Local copy of chrome://resources/css/chrome_shared.css -->
+    <link href="chrome-resources/css/chrome_shared.css" rel="stylesheet" type=
+    "text/css">
+    <link href="popup.css" rel="stylesheet" type="text/css">
+    <script src="popup.js">
+    </script>
 </head>
 
-<!-- ------------------- -->
+<!-- =================== -->
 
 <body>
+    <header>
+        <h1 id="ext_name">
+        </h1>
+    </header>
 
-<header>
-  <h1 id="ext_name"></h1>
-</header>
 
-<section id="BasicStats" class="stats">
-  <h3 i18n="basic_stats">Basic statistics</h3>
-  <p>Total tabs created: <span id="created"></span></p>
-  <p>Total tabs destroyed: <span id="destroyed"></span></p>
-  <p>Ratio destroyed/created: <span id="ratio"></span></p>
-</section>
+    <section class="stats" id="BasicStats">
+        <h3>Basic statistics</h3>
 
-<section id="Close" class="close">
-  <h3 i18n="Close">Close all tabs except active</h3>
-  <button id="close_all" type="button">Clean!</button>
-</section>
 
-<section id="Options" class="options">
-  <h3 i18n="Options">Options</h3>
-Suspend tabs when more than <input id="mintabs" type="text" value="10">tabs are open</<input><br><br>
-Suspend when tab has not been activated for <input id="mintime" type="text" value="10">minutes</<input><br><br>
-<input id="send-data-checkbox" type="checkbox" value="send"> Send tab usage stats</<input>
-</section>
+        <p>Total tabs created: <span id="created"></span></p>
 
-<footer>
-  <a id="whatIsThis" href="https://tablog-webfpext.rhcloud.com/" target="_blank" tabindex="-1" i18n="chrome_what_is_this">What is this?</a>
-  <p><small>(Version: <span id="currentversion"></span>)</small></p>
-</footer>
 
+        <p>Total tabs destroyed: <span id="destroyed"></span></p>
+
+
+        <p>Ratio destroyed/created: <span id="ratio"></span></p>
+    </section>
+
+
+    <section class="close" id="Close">
+        <h3>Close all tabs except active</h3>
+
+
+        <div style="text-align: center">
+            <button id="close_all" type="button">Clean!</button>
+        </div>
+    </section>
+
+
+    <section class="options" id="Options">
+        <h3>Options</h3>
+
+
+        <ul style="margin-left: 0px; padding: 5px;">
+            <li>Send tab usage stats  <input id="send-data-checkbox" type="checkbox" value="send">
+            <br>
+            <br></li>
+
+
+            <li>Enable memory saving for<br>
+                <br>
+
+
+                <div style="text-align: center">
+                    <input id="mintabs" max="999" min="1" style="width: 50px;"
+                    type="number" value="10"> tabs open
+                </div>
+                <br>
+                <br>
+            </li>
+
+
+            <li>Suspend tab when inactive for:<br>
+                <br>
+
+
+                <div style="text-align: center">
+                    <input id="mintime" max="3600" min="5" type="range" value=
+                    "10">
+                </div>
+                <br>
+                <br>
+            </li>
+        </ul>
+    </section>
+
+
+    <footer>
+        <a href="https://tablog-webfpext.rhcloud.com/" id="whatIsThis"
+        tabindex="-1" target="_blank">What is this?</a>
+
+        <p><small>(Version: <span id="currentversion"></span>)</small>
+        </p>
+    </footer>
 </body>
+</html>
