@@ -1,8 +1,7 @@
+#!/bin/sh
 # Copyright © 2010-2012 HTTPS Everywhere authors. All rights reserved.
 # Use of this source code is governed by a GPL v2+ license that can be
 # found in the LICENSE file. */
-
-#!/bin/bash
 
 HOST='https://src.chromium.org'
 BASE='chrome/trunk/src/ui/webui/resources'
