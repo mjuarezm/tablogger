@@ -1,5 +1,5 @@
 /**
- * @license
+ * @license MIT
  * Copyright (c) 2015 WF Team.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,20 +20,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+ 
 /**
  * @fileoverview Content script that the extension injects in all web pages.
  */
 (function() {
-	// Listen to the onLoaded event and attach a callback to it.
-	//TODO: this is tricky, we might miss some pages since onLoad event might not be triggered.
-	jQuery(window).load(function() {
-		// See: http://stackoverflow.com/a/7083802
-		setTimeout(function() {
-			chrome.runtime.sendMessage({event : "onLoaded"}, function(response) {
-				console.log(response.msg);
-			});
-		}, 100);
-	});
 
 	// Listener for messages sent from the background script.
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {

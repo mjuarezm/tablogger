@@ -36,11 +36,9 @@
         chrome.tabs.onUpdated.addListener(logOnUpdatedEvent);
         chrome.tabs.onActivated.addListener(logOnActivated);
 
-        // Listen for the onLoaded event intercepted by the content script.
-        chrome.runtime.onMessage.addListener(function(request, sender, sndResp) {
-            if (request.event == "onLoaded") {
-                logEvent(sender.tab.id, request.event)
-            }
+        // Register listener for onLoaded events.
+        chrome.webNavigation.onCompleted.addListener(function(details) {
+            logEvent(details.tabId, "onLoaded");
         });
 
 
@@ -70,7 +68,7 @@
          * Callback attached to the onUpdated tab event.
          */
         function logOnUpdatedEvent(tabId, changeInfo, tab) {
-            if (!tablogs.TABS[tabId]['suspend'] && changeInfo.url) { // if url has changed
+            if (!tablogs.TABS[tabId]['suspend'] && changeInfo.status == 'loading') {
                 logEvent(tabId, "onUpdated");
             }
             if (!(tabId in tablogs.TABS)) {

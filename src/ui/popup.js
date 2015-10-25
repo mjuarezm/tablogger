@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	// get the extension's current version.
 	var the_manifest = chrome.runtime.getManifest();
-	$("#currentversion")[0].innerText = the_manifest.version;
+	document.getElementById('currentversion').innerText = the_manifest.version;
 
 	// set the title
 	document.title = the_manifest.name;
-	$('h1').append(document.title);
+	document.getElementById('ext_name').innerText = document.title;
 
 	// toggle option for whether we send or not the stats
 	getOption_('sendStats', false, function(item) {
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	});
 
-	$("#close_all")[0].addEventListener('click', function() {
+	document.getElementById('close_all').addEventListener('click', function() {
 		chrome.tabs.query({'pinned': false, 'active': false}, function (tabs) {
 			var tabids = [];
 			for (var i in tabs) {
@@ -42,9 +42,9 @@ document.addEventListener("DOMContentLoaded", function() {
 chrome.runtime.sendMessage({
 	action: "stats"
 }, function(response) {
-	$("#created").html(response.created)
-	$("#destroyed").html(response.removed)
-	$("#ratio").html(response.ratio)
+	document.getElementById('created').innerHTML = response.created;
+	document.getElementById('destroyed').innerHTML = response.removed;
+	document.getElementById('ratio').innerHTML = response.ratio;
 });
 
 function toggleSendData() {

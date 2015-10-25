@@ -20,6 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+ 
 /**
  * @fileoverview This module offers a set of general purpose methods.
  */
@@ -29,68 +30,6 @@ var util = (function() {
 
     var extension = '.log';
 
-
-    /**
-     * Parse a key envelope.
-     *
-     * Taken from: https://www.pidder.de/pidcrypt/?page=demo_rsa-encryption
-     * We acknowledge the pidCrypt library authors.
-     */
-    function certParser(cert) {
-        var lines = cert.split('\n');
-        var read = false;
-        var b64 = false;
-        var end = false;
-        var flag = '';
-        var retObj = {};
-        retObj.info = '';
-        retObj.salt = '';
-        retObj.iv;
-        retObj.b64 = '';
-        retObj.aes = false;
-        retObj.mode = '';
-        retObj.bits = 0;
-        for (var i = 0; i < lines.length; i++) {
-            flag = lines[i].substr(0, 9);
-            if (i == 1 && flag != 'Proc-Type' && flag.indexOf('M') == 0) //unencrypted cert?
-                b64 = true;
-            switch (flag) {
-                case '-----BEGI':
-                    read = true;
-                    break;
-                case 'Proc-Type':
-                    if (read)
-                        retObj.info = lines[i];
-                    break;
-                case 'DEK-Info:':
-                    if (read) {
-                        var tmp = lines[i].split(',');
-                        var dek = tmp[0].split(': ');
-                        var aes = dek[1].split('-');
-                        retObj.aes = (aes[0] == 'AES') ? true : false;
-                        retObj.mode = aes[2];
-                        retObj.bits = parseInt(aes[1]);
-                        retObj.salt = tmp[1].substr(0, 16);
-                        retObj.iv = tmp[1];
-                    }
-                    break;
-                case '':
-                    if (read)
-                        b64 = true;
-                    break;
-                case '-----END ':
-                    if (read) {
-                        b64 = false;
-                        read = false;
-                    }
-                    break;
-                default:
-                    if (read && b64)
-                        retObj.b64 += pidCryptUtil.stripLineFeeds(lines[i]);
-            }
-        }
-        return retObj;
-    }
 
     /* Public namespace */
     return {
@@ -113,57 +52,43 @@ var util = (function() {
 
 
         /**
-         * Encryption function using the pidCrytp library.
+         * Encryption function from JSBN crypto library.
          *
          * Taken from: http://cryptojs.altervista.org/publickey/doc/doc_rsa_pidcrypt.html
-         * We acknowledge the pidCrypt library authors.
+         * Copyright (c) 2005  Tom Wu. All Rights Reserved. See LICENSE file for details.
          */
-        encrypt: function(plaintext) {
-            var params = certParser(pub_key);
-            var key = pidCryptUtil.decodeBase64(params.b64);
-
-            // new RSA instance
-            var rsa = new pidCrypt.RSA();
-
-            // ASN1 parsing
-            var asn = pidCrypt.ASN1.decode(pidCryptUtil.toByteArray(key));
-            var tree = asn.toHexTree();
-
-            // setting the public key for encryption with retrieved ASN.1 tree
-            rsa.setPublicKeyFromASN(tree);
-
-            /*** encrypt */
-            var crypted = rsa.encrypt(plaintext);
-            var fromHex = pidCryptUtil.encodeBase64(pidCryptUtil.convertFromHex(crypted));
-            return pidCryptUtil.fragment(fromHex, 64);
+        encrypt: function(ua) {
+            var rsa = new RSAKey();
+            rsa.setPublic(tablogs.N, tablogs.e);
+            var res = rsa.encrypt(ua);
+            return this.hex2b64(res);
         },
 
 
         /**
-         * Encode a list of bytes as a base64 string.
+         * Converts from hex string to base64, from JSBN crypto library.
          *
-         * From: http://codereview.stackexchange.com/a/3589
-         * We acknowledge @Mike Samuel for the answer.
+         * Copyright (c) 2005  Tom Wu. All Rights Reserved. See LICENSE file for details.
          */
-        pack: function(bytes) {
-            return btoa(String.fromCharCode.apply(null, new Uint8Array(bytes)));
-        },
-
-
-        /**
-         * Get a list of bytes from a string.
-         *
-         * From: http://codereview.stackexchange.com/a/3589
-         * We acknowledge @Mike Samuel for the answer.
-         */
-        getIntBytes: function(x) {
-            var bytes = [];
-            var i = 5;
-            do {
-                bytes[--i] = x & (255);
-                x = x >> 8;
-            } while (i)
-            return bytes;
+        hex2b64: function(h) {
+            var b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            var b64padchar = "=";
+            var i;
+            var c;
+            var ret = "";
+            for (i = 0; i + 3 <= h.length; i += 3) {
+                c = parseInt(h.substring(i, i + 3), 16);
+                ret += b64map.charAt(c >> 6) + b64map.charAt(c & 63);
+            }
+            if (i + 1 == h.length) {
+                c = parseInt(h.substring(i, i + 1), 16);
+                ret += b64map.charAt(c << 2);
+            } else if (i + 2 == h.length) {
+                c = parseInt(h.substring(i, i + 2), 16);
+                ret += b64map.charAt(c >> 2) + b64map.charAt((c & 3) << 4);
+            }
+            while ((ret.length & 3) > 0) ret += b64padchar;
+            return ret;
         },
 
 
@@ -175,6 +100,22 @@ var util = (function() {
          */
         base64EncodeUrl: function(str) {
             return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
+        },
+
+
+        /**
+         * Get a list of bytes from a string.
+         *
+         * From: http://codereview.stackexchange.com/a/3589
+         * We acknowledge @Mike Samuel for the answer.
+         */
+        getIntBytes: function(x, i) {
+            var bytes = [];
+            do {
+                bytes[--i] = x & 0xFF;
+                x = x >> 8;
+            } while (i)
+            return bytes;
         },
 
 
@@ -198,12 +139,12 @@ var util = (function() {
             window.crypto.getRandomValues(buf);
             var S4 = function(num) {
                 var ret = num.toString(16);
-                while(ret.length < 4){
-                    ret = "0"+ret;
+                while (ret.length < 4) {
+                    ret = "0" + ret;
                 }
                 return ret;
             };
-            return (S4(buf[0])+S4(buf[1])+"-"+S4(buf[2])+"-"+S4(buf[3])+"-"+S4(buf[4])+"-"+S4(buf[5])+S4(buf[6])+S4(buf[7]));
+            return (S4(buf[0]) + S4(buf[1]) + "-" + S4(buf[2]) + "-" + S4(buf[3]) + "-" + S4(buf[4]) + "-" + S4(buf[5]) + S4(buf[6]) + S4(buf[7]));
         },
 
 
@@ -246,3 +187,6 @@ var util = (function() {
         }
     }
 })()
+
+// Export to be used in tests
+if (typeof exports !== 'undefined') { exports.util = util}

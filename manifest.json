@@ -1,12 +1,12 @@
 {
   "name": "Tab Logger",
-  "description": "Helps improving user productivity.",
+  "description": "Makes tab usage more efficient.",
   "version": "1.5",
-  "permissions": ["storage", "unlimitedStorage", "contextMenus", "tabs", "webRequest", "<all_urls>"],
+  "permissions": ["storage", "unlimitedStorage", "contextMenus", "tabs", "webRequest", "webNavigation", "<all_urls>"],
   "web_accessible_resources": ["src/content/suspended.html"],
-  "background": {"scripts": ["src/util.js", "src/filesystem.js", "src/background.js", "src/events.js", "src/stats.js","src/crypto/pidcrypt_c.js", "src/crypto/pidcrypt_util_c.js", "src/crypto/asn1_c.js", "src/crypto/jsbn_c.js", "src/crypto/prng4_c.js", "src/crypto/rng_c.js", "src/crypto/rsa_c.js", "src/crypto/rsa.pub", "src/crypto/sha256_c.js"]},
+  "background": {"scripts": ["src/util.js", "src/filesystem.js", "src/background.js", "src/events.js", "src/stats.js", "src/crypto/jsbn.js", "src/crypto/prng4.js", "src/crypto/rng.js", "src/crypto/rsa.js", "src/crypto/sha256.js"]},
   "icons": { "48": "icons/icon48.png", "128": "icons/icon128.png"},
   "browser_action": {"default_icon": "icons/icon48.png", "default_popup": "src/ui/popup.html"},
-  "content_scripts": [{"matches": ["<all_urls>"], "js": ["src/content/jquery.js", "src/content/content.js"]}],
+  "content_scripts": [{"matches": ["<all_urls>"], "js": ["src/content/content.js"]}],
   "manifest_version": 2
 }

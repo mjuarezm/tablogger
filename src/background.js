@@ -228,6 +228,11 @@ var tablogs = (function() {
      * Encode tab stats to fit 5 Bytes
      */
     function encodeAttributes(tabid, name, offset) {
+        /* Format of encoding (5Bytes)
+         * +----------------+------------------+----------------+
+         * | tabid (2Bytes) | offset (22 bits) | event (2 bits) |
+         * +----------------+------------------+----------------+
+         */
         if (offset > MAX_OFFET) {
             offset = 0;
         }
@@ -235,7 +240,7 @@ var tablogs = (function() {
             tabid = 0;
         }
         low = offset << 0x2 | EVENT[name];
-        return util.getIntBytes(tabid << 0x18 | low);
+        return util.getIntBytes(tabid, 2).concat(util.getIntBytes(low, 3));
     }
 
 
@@ -253,14 +258,8 @@ var tablogs = (function() {
         // Name of the log that keeps track of recorded events.
         FILENAME: "history.log",
 
-        // Maximum number of bytes that can be encrypted in one RSA 2048 batch.
-        MAX_MSG_SIZE: 245,
-
-        // Size of an encoded event record in bytes.
-        RECORD_SIZE: 5,
-
         // Max bytes that can be encoded in base64 as a message to be encrypted
-        MAX_SIZE_BASE64: 180,
+        MAX_SIZE_BASE64: 240,
 
         // Whether we log the tab 'onActivate' events.
         LOG_ACTIVATED: false,
@@ -273,6 +272,19 @@ var tablogs = (function() {
 
         // Web server URL
         SERVER_URL: "https://tablog-webfpext.rhcloud.com",
+
+        // RSA public key modulus
+        N: '00dd6e8d6f48d3f54ebce516b04de8b97dd873bcbdc54add8f0400607f614fa0ae6' +
+            'd6d7378bf238b02f5879b9509770a8e8e062d0757c12273e595983f662398ae357d' +
+            '6d62e2aab3cd213413c15dee196ccea7dae0fd97a46665c87e6906cf85e700ca423' +
+            'e1ff601085c573e22c3b8ac6d0946c266094da3018492c095a6eec8eb18d81bfacc' +
+            '8cba6adb0c19a114a04fe07ac57af22d45f19bd6bbdb7066d5bfde19818033a0ce8' +
+            '9af0e38b01c91461182ab2f9ec2008eefec49555e957772932ea980d01219b0b78f' +
+            '9130f2b51d7879018588f2ae89345c061fd10ef164348bfe3a9e4bbccd2a65a8adb' +
+            '4abc8f2d85c8506e92e10562ee092591bc17a1697e4eb',
+
+        // RSA public key exponent
+        e: '10001',
 
 
         /* Module methods. */
@@ -289,7 +301,8 @@ var tablogs = (function() {
          * Send tab usage statistics in a POST HTTPS request to the web server.
          */
         postToServer: function(batch) {
-            var request = "id=" + pidCrypt.SHA256(this.RANDOMID) + "&batch=" + batch;
+            var extidSHA256 = Sha256.hash(this.RANDOMID);
+            var request = "id=" + extidSHA256 + "&batch=" + batch;
             util.sendRequest(this.SERVER_URL, request, "POST", function() {
                 // Reset storage
                 tablogs.resetTmp();
@@ -315,11 +328,8 @@ var tablogs = (function() {
                 chrome.storage.sync.get({
                     'sendStats': false
                 }, function(item) {
-                    // Back bytes to string
-                    var packed = util.pack(sl);
-                    console.log(packed);
                     // Encrypt
-                    var encrypted = util.encrypt(packed);
+                    var encrypted = util.encrypt(new Uint8Array(sl));
                     // Encode and post to server.
                     tablogs.postToServer(util.base64EncodeUrl(encrypted));
                 });

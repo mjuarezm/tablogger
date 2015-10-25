@@ -2,9 +2,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file. */
 
-/* This file has been copied from HTTPS Everywhere extension for the development
- * of the tab logger extension user interface. */
-
 /* This file defines styles for form controls. The order of rule blocks is
  * important as there are some rules with equal specificity that rely on order
  * as a tiebreaker. These are marked with OVERRIDE. */

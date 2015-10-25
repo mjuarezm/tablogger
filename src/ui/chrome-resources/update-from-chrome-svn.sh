@@ -2,7 +2,8 @@
 # Use of this source code is governed by a GPL v2+ license that can be
 # found in the LICENSE file. */
 
-#!/bin/sh
+#!/bin/bash
+
 HOST='https://src.chromium.org'
 BASE='chrome/trunk/src/ui/webui/resources'
 FILES='

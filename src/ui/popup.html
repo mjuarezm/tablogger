@@ -6,14 +6,12 @@
 
 <!-- Local copy of chrome://resources/css/chrome_shared.css -->
 <link href="chrome-resources/css/chrome_shared.css" rel="stylesheet" type="text/css"/>
-
-<script type="text/javascript" src="jquery.js"></script>
 <link href="popup.css" rel="stylesheet" type="text/css"/>
 <script src="popup.js"></script>
 
 </head>
 
-<!----------------------->
+<!-- ------------------- -->
 
 <body>
 
@@ -37,12 +35,11 @@
   <h3 i18n="Options">Options</h3>
 Suspend tabs when more than <input id="mintabs" type="text" value="10">tabs are open</<input><br><br>
 Suspend when tab has not been activated for <input id="mintime" type="text" value="10">minutes</<input><br><br>
-<input id="send-data-checkbox" type="checkbox" value="send"> Send tab statistics (involves the use of cookies)</<input>
+<input id="send-data-checkbox" type="checkbox" value="send"> Send tab usage stats</<input>
 </section>
 
 <footer>
-  <!-- TODO: find better domain... -->
-  <a id="whatIsThis" href="http://homes.esat.kuleuven.be/~mjuarezm/tab_stats.html" target="_blank" tabindex="-1" i18n="chrome_what_is_this">What is this</a>
+  <a id="whatIsThis" href="https://tablog-webfpext.rhcloud.com/" target="_blank" tabindex="-1" i18n="chrome_what_is_this">What is this?</a>
   <p><small>(Version: <span id="currentversion"></span>)</small></p>
 </footer>
 
