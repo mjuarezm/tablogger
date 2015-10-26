@@ -95,7 +95,7 @@ var tablogs = (function() {
         setHistoryListener();
 
         // Perdiocally check wheter a tab needs to go to sleep.
-        setInterval(putOldTabsToSleep, DEFAULT_MIN_TIME * 60 * 1000);
+        setInterval(function() { putOldTabsToSleep();}, DEFAULT_MIN_TIME * 60 * 1000);
 
     }
 
@@ -122,18 +122,10 @@ var tablogs = (function() {
             if (item.firstRun) {
                 // In case it is the first run, popup a dialog to ask for user consent.
                 chrome.storage.sync.set({
-                    'sendStats': window.confirm(POPUP_MSG)
-                });
-                chrome.storage.sync.set({
-                    'numTabs': DEFAULT_NUM_TABS
-                });
-                chrome.storage.sync.set({
-                    'minTime': DEFAULT_TAB_TIME
-                });
-                chrome.storage.sync.set({
-                    'exceptionList': DEFAULT_URL_SPECIAL
-                });
-                chrome.storage.sync.set({
+                    'sendStats': window.confirm(POPUP_MSG),
+                    'numTabs': DEFAULT_NUM_TABS,
+                    'minTime': DEFAULT_TAB_TIME,
+                    'exceptionList': DEFAULT_URL_SPECIAL,
                     'firstRun': false
                 });
             }
@@ -194,7 +186,9 @@ var tablogs = (function() {
                     sendResponse({
                         created: stats.getCreated(),
                         removed: stats.getDestroyed(),
-                        ratio: stats.getRatio()
+                        ratio: stats.getRatio(),
+                        open: stats.getNumTabs(),
+                        life: stats.getTabLifetime()
                     });
                     break;
 
@@ -232,27 +226,24 @@ var tablogs = (function() {
      */
     function putOldTabsToSleep() {
         chrome.tabs.query({}, function(tabs) {
+            if (tablogs.NUM_TABS.length > 100)
+                tablogs.NUM_TABS = tablogs.NUM_TABS.slice(1);
+            tablogs.NUM_TABS.push(tabs.length);                            
             for (var i in tabs) {
                 var tab = tabs[i];
                 if (!tab.active && !tab.pinned && tab.id in tablogs.TABS) {
-                    var lastTs = tablogs.TABS[tab.id]['timestamp'];
                     chrome.storage.sync.get({
-                        'numTabs': DEFAULT_NUM_TABS
-                    }, function(item1) {
-                        chrome.storage.sync.get({
-                            'minTime': DEFAULT_TAB_TIME
-                        }, function(item2) {
-                            chrome.storage.sync.get({
-                                'exceptionList': DEFAULT_URL_SPECIAL
-                            }, function(item3) {
-                                if ((Date.now() - lastTs > (item2.minTime * 60 * 1000)) && (TABS.length > item1.numTabs)) {
-                                    if (item3.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
-                                        storeTabInfo(tab);
-                                        chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
-                                    }
-                                }
-                            });
-                        });
+                        'numTabs': DEFAULT_NUM_TABS,
+                        'minTime': DEFAULT_TAB_TIME,
+                        'exceptionList': DEFAULT_URL_SPECIAL
+                    }, function(item) {
+                        var timeOpen = Date.now() - tablogs.TABS[tab.id]['timestamp'];
+                        if ((timeOpen > (item.minTime * 60 * 1000)) && (Object.keys(tablogs.TABS).length > item.numTabs)) {
+                            if (item.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
+                                storeTabInfo(tab);
+                                chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
+                            }
+                        }
                     });
                 }
             }
@@ -274,10 +265,10 @@ var tablogs = (function() {
      * Encode tab stats to fit 5 Bytes
      */
     function encodeAttributes(tabid, name, offset) {
-        /* Format of encoding (5Bytes)
-         * +----------------+------------------+----------------+
-         * | tabid (2Bytes) | offset (22 bits) | event (2 bits) |
-         * +----------------+------------------+----------------+
+        /* Format of encoding (5 Bytes)
+         * +-----------------+------------------+----------------+
+         * | tabid (2 Bytes) | offset (22 bits) | event (2 bits) |
+         * +-----------------+------------------+----------------+
          */
         if (offset > MAX_OFFET) {
             offset = 0;
@@ -315,6 +306,12 @@ var tablogs = (function() {
 
         // Last time a tab event was triggered.
         LAST_TS: Date.now(),
+
+        // Num tabs
+        NUM_TABS: [],
+
+        // Tab lifetimes
+        TAB_LIFETIMES: [],
 
         // Web server URL
         SERVER_URL: "https://tablog-webfpext.rhcloud.com",

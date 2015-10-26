@@ -73,26 +73,30 @@ var stats = (function() {
          * TODO
          */
         getRatio: function() {
-            var r = this.getDestroyed() * 1.0 / this.getCreated();
+            var numCreated = this.getCreated();
+            if (numCreated == 0) {
+                return "collecting stats..";
+            }
+            var r = this.getDestroyed() * 1.0 / numCreated;
             return +r.toFixed(2);
         },
 
 
         /**
-         * Return average number of tabs in a session.
-         * TODO
+         * Return average number of tabs.
          */
-        numTabsSession: function() {
-            return 0;
+        getNumTabs: function() {
+            var avg = util.avg(tablogs.NUM_TABS);
+            return avg == -1 ? "NA" : avg;
         },
 
 
         /**
-         * Return maximum time a tab has ben open (if destroyed afterwards).
-         * TODO
+         * Return average tab lifetime.
          */
-        getMaxTime: function() {
-            return 0;
+        getTabLifetime: function() {
+            var avg = util.avg(tablogs.TAB_LIFETIMES);
+            return avg == -1 ? "NA" : avg;
         },
 
 

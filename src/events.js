@@ -52,6 +52,7 @@
             }
             tablogs.TABS[tab.id]['timestamp'] = Date.now();
             tablogs.TABS[tab.id]['suspend'] = false;
+            tablogs.TABS[tab.id]['tscreated'] = Date.now();
         }
 
 
@@ -60,6 +61,9 @@
          */
         function logOnRemovedEvent(tabId, removeInfo) {
             logEvent(tabId, "onRemoved");
+            if (tablogs.TAB_LIFETIMES.length > 100)
+                tablogs.TAB_LIFETIMES = tablogs.TAB_LIFETIMES.slice(1);
+            tablogs.TAB_LIFETIMES.push(Date.now() - tablogs.TABS[tabId]['tscreated']);
             delete tablogs.TABS[tabId];
         }
 
@@ -74,8 +78,6 @@
             if (!(tabId in tablogs.TABS)) {
                 tablogs.TABS[tabId] = {};
             }
-            tablogs.TABS[tabId]['timestamp'] = Date.now();
-            tablogs.TABS[tabId]['suspend'] = false;
         }
 
 

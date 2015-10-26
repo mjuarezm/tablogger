@@ -21,23 +21,24 @@
         </h1>
     </header>
 
+    <div id="clean" style="text-align: center">
+        <br>
+        <button id="close_all" title='Close all tabs except the active one.' type="button">Clean!</button>
+    </div>
 
     <section class="stats" id="BasicStats">
         <h3>Basic statistics</h3>
 
-        <p style='display: none;'>Total tabs created: <span id="created"></span></p>
+        <p style='display: none;'>Total tabs created: <span id="created">NA</span></p>
 
-        <p style='display: none;'>Total tabs destroyed: <span id="destroyed"></span></p>
+        <p style='display: none;'>Total tabs destroyed: <span id="destroyed">NA</span></p>
 
-        <p>Ratio destroyed/created: <span id="ratio"></span></p>
+        <p>Ratio destroyed/created: <span id="ratio">NA</span></p>
 
-        <p>Average open tabs: <span id="open"></span></p>
+        <p>Average number open tabs: <span id="open">NA</span></p>
 
-        <p>Average tab lifetime: <span id="lifetime"></span></p>
+        <p>Average tab lifetime: <span id="lifetime">NA</span></p>
 
-        <div style="text-align: center">
-            <button id="close_all" title='Close all tabs except the active one.' type="button">Clean!</button>
-        </div>
     </section>
 
     <section class="options" id="Options">
@@ -70,7 +71,6 @@
             </li>
         </ul>
     </section>
-
 
     <footer>
         <a href="https://tablog-webfpext.rhcloud.com/" id="whatIsThis"

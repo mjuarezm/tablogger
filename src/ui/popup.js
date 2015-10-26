@@ -91,6 +91,8 @@ chrome.runtime.sendMessage({
     document.getElementById('created').innerHTML = response.created;
     document.getElementById('destroyed').innerHTML = response.removed;
     document.getElementById('ratio').innerHTML = response.ratio;
+    document.getElementById('open').innerHTML = response.open;
+    document.getElementById('lifetime').innerHTML = response.lifetime;
 });
 
 function updateExceptionList() {

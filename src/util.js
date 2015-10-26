@@ -175,6 +175,22 @@ var util = (function() {
 
 
         /**
+         * Return average of elements.
+         */
+        avg: function(number_list) {
+            var sum = 0;
+            var l = number_list.length;
+            if (l == 0) {
+                return -1;
+            }
+            for(var i = 0; i < l; i++ ){
+                sum += number_list[i];
+            }
+            return sum / (l * 1.0);
+        },
+
+
+        /**
          * Return domain from URL.
          */
         getDomain: function(url_str) {
