@@ -25,60 +25,48 @@
     <section class="stats" id="BasicStats">
         <h3>Basic statistics</h3>
 
+        <p style='display: none;'>Total tabs created: <span id="created"></span></p>
 
-        <p>Total tabs created: <span id="created"></span></p>
-
-
-        <p>Total tabs destroyed: <span id="destroyed"></span></p>
-
+        <p style='display: none;'>Total tabs destroyed: <span id="destroyed"></span></p>
 
         <p>Ratio destroyed/created: <span id="ratio"></span></p>
-    </section>
 
+        <p>Average open tabs: <span id="open"></span></p>
 
-    <section class="close" id="Close">
-        <h3>Close all tabs except active</h3>
-
+        <p>Average tab lifetime: <span id="lifetime"></span></p>
 
         <div style="text-align: center">
-            <button id="close_all" type="button">Clean!</button>
+            <button id="close_all" title='Close all tabs except the active one.' type="button">Clean!</button>
         </div>
     </section>
 
-
     <section class="options" id="Options">
         <h3>Options</h3>
+        <input id="send-data-checkbox" title='If checked, the extension sends statistics about your tab usage for research purposes.' type="checkbox" value="send"> Send tab usage stats
+    </section>
 
+
+    <section class="memsave" id="memsave">
+        <h3>Memory saving</h3>
 
         <ul style="margin-left: 0px; padding: 5px;">
-            <li>Send tab usage stats  <input id="send-data-checkbox" type="checkbox" value="send">
-            <br>
-            <br></li>
 
-
-            <li>Enable memory saving for<br>
-                <br>
-
-
-                <div style="text-align: center">
-                    <input id="mintabs" max="999" min="1" style="width: 50px;"
-                    type="number" value="10"> tabs open
-                </div>
-                <br>
-                <br>
+            <li>
+                Enable for <input id="mintabs" max="99" min="1" style="width: 40px;"
+                    type="number" title='Memory saving is enabled only if there are as many tabs open as indicated here.' value="10"> open tabs*
+                <br><br>
             </li>
 
+            <li>
+                Suspend after <input id="mintime" title='Put to sleep those tabs that have been inactive for longer than indicated here.' max="99" min="5" type="number" value="15" style="width: 40px;"> minutes
+                <br><br>
+            </li>
 
-            <li>Suspend tab when inactive for:<br>
-                <br>
-
-
-                <div style="text-align: center">
-                    <input id="mintime" max="3600" min="5" type="range" value=
-                    "10">
-                </div>
-                <br>
-                <br>
+            <li>Exceptions:<br><br>
+              <input list="exceptions" title='Add the top level domain.' id="exceptions_list" name="exceptions" style="width: 120px;">
+                <datalist id="exceptions"></datalist>
+              <button id="add_exception" class="excButton" title='Add an exception for suspending.' style="min-width:2.5em;width:2.5em;border:none;">+</button>
+              <button id="del_exception" class="excButton" title='Remove an exception for suspending.' style="min-width:2.5em;width:2.5em;border:none;">-</button>
             </li>
         </ul>
     </section>

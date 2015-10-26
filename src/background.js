@@ -34,8 +34,17 @@ var tablogs = (function() {
     // Number of bytes of quota for storage.
     var REQUESTED_BYTES = 1024 * 1024 * 10;
 
-    // Seconds after which an inactive tab is put to sleep.
-    var TAB_TIME = 90000;
+    // Default number of minutes after which an inactive tab is put to sleep.
+    var DEFAULT_TAB_TIME = 15;
+
+    // Default number of tabs after for which the memory saving is enabled
+    var DEFAULT_NUM_TABS = 10;
+
+    // Min time to put tabs to sleep
+    var DEFAULT_MIN_TIME = 5;
+
+    // Default list of special pages
+    var DEFAULT_URL_SPECIAL = ['youtube.com', 'play.spotify.com'];
 
     // Message to be displayed once after installation.
     var POPUP_MSG = "Do you allow this extenstion to send tab usage statistics " +
@@ -82,8 +91,24 @@ var tablogs = (function() {
         // Load previous records.
         loadPreviousRecords();
 
+        // Remove suspended tab from history
+        setHistoryListener();
+
         // Perdiocally check wheter a tab needs to go to sleep.
-        setInterval(putOldTabsToSleep, TAB_TIME);
+        setInterval(putOldTabsToSleep, DEFAULT_MIN_TIME * 60 * 1000);
+
+    }
+
+
+    /**
+     * Remove suspended tab from history.
+     */
+    function setHistoryListener(){
+        chrome.history.onVisited.addListener(function (result) {
+            if (result.title == 'SuspendedTab') {
+                chrome.history.deleteUrl(result.url);
+            }
+        });
     }
 
 
@@ -98,6 +123,15 @@ var tablogs = (function() {
                 // In case it is the first run, popup a dialog to ask for user consent.
                 chrome.storage.sync.set({
                     'sendStats': window.confirm(POPUP_MSG)
+                });
+                chrome.storage.sync.set({
+                    'numTabs': DEFAULT_NUM_TABS
+                });
+                chrome.storage.sync.set({
+                    'minTime': DEFAULT_TAB_TIME
+                });
+                chrome.storage.sync.set({
+                    'exceptionList': DEFAULT_URL_SPECIAL
                 });
                 chrome.storage.sync.set({
                     'firstRun': false
@@ -202,12 +236,24 @@ var tablogs = (function() {
                 var tab = tabs[i];
                 if (!tab.active && !tab.pinned && tab.id in tablogs.TABS) {
                     var lastTs = tablogs.TABS[tab.id]['timestamp'];
-                    if (Date.now() - lastTs > TAB_TIME) {
-                        storeTabInfo(tab);
-                        chrome.tabs.sendMessage(tab.id, {
-                            action: 'suspendTab'
-                        }, {});
-                    }
+                    chrome.storage.sync.get({
+                        'numTabs': DEFAULT_NUM_TABS
+                    }, function(item1) {
+                        chrome.storage.sync.get({
+                            'minTime': DEFAULT_TAB_TIME
+                        }, function(item2) {
+                            chrome.storage.sync.get({
+                                'exceptionList': DEFAULT_URL_SPECIAL
+                            }, function(item3) {
+                                if ((Date.now() - lastTs > (item2.minTime * 60 * 1000)) && (TABS.length > item1.numTabs)) {
+                                    if (item3.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
+                                        storeTabInfo(tab);
+                                        chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
+                                    }
+                                }
+                            });
+                        });
+                    });
                 }
             }
         });

@@ -175,6 +175,16 @@ var util = (function() {
 
 
         /**
+         * Return domain from URL.
+         */
+        getDomain: function(url_str) {
+            var loc = document.createElement('a');
+            loc.href = url_str;
+            return loc.hostname.slice(0,4) == 'www.' ? loc.hostname.slice(4) : loc.hostname;
+        },
+
+
+        /**
          * Check whether a tab is suspended or not.
          *
          * The MIT License

@@ -7,6 +7,7 @@ body {
   margin-right: 1em;
   margin-bottom: 0;
   min-width: 20em;
+  overflow: hidden;
 }
 
 h1, h2, h3, .rule {
@@ -27,6 +28,15 @@ section.rules {
 .rule img {
   margin-left: 0.6em;
   vertical-align: bottom;
+}
+
+button {
+    min-width: 3em;
+}
+
+.excButton {
+    width: 3em;
+    border:none;
 }
 
 /*** Everything below is "reverse-engineered" from Chrome's Settings page. ***/
