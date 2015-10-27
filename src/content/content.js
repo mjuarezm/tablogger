@@ -29,8 +29,9 @@
 	// Listener for messages sent from the background script.
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		var cur_url = window.location.href;
-		switch (request) {
+		switch (request.action) {
 		case 'suspendTab':
+			console.log('suspended!!');
 			var new_url = generateSuspendedUrl(cur_url);
 	        window.location.replace(new_url);
 			break;
@@ -57,7 +58,7 @@
 	    if (tabUrl.indexOf('suspended.html') >= 0) {
 	    	return tabUrl;
 	    }
-	    return chrome.extension.getURL('suspended.html' + args);
+	    return chrome.extension.getURL('src/content/suspended.html' + args);
 	}
 
 

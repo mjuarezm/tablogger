@@ -47,12 +47,11 @@
          */
         function logOnCreatedEvent(tab) {
             logEvent(tab.id, "onCreated");
-            if (!(tab.id in tablogs.TABS)) {
-                tablogs.TABS[tab.id] = {};
-            }
-            tablogs.TABS[tab.id]['timestamp'] = Date.now();
-            tablogs.TABS[tab.id]['suspend'] = false;
-            tablogs.TABS[tab.id]['tscreated'] = Date.now();
+            tablogs.TABS[tab.id] = {
+                'timestamp': Date.now(),
+                'suspended': false,
+                'tscreated': Date.now()
+            };
         }
 
 
@@ -61,10 +60,13 @@
          */
         function logOnRemovedEvent(tabId, removeInfo) {
             logEvent(tabId, "onRemoved");
-            if (tablogs.TAB_LIFETIMES.length > 100)
-                tablogs.TAB_LIFETIMES = tablogs.TAB_LIFETIMES.slice(1);
-            tablogs.TAB_LIFETIMES.push(Date.now() - tablogs.TABS[tabId]['tscreated']);
-            delete tablogs.TABS[tabId];
+            if (tabId in tablogs.TABS && tablogs.TABS[tabId].hasOwnProperty('tscreated')) {
+                if (tablogs.TAB_LIFETIMES.length > 100) {
+                    tablogs.TAB_LIFETIMES = tablogs.TAB_LIFETIMES.slice(1);
+                }
+                tablogs.TAB_LIFETIMES.push(Date.now() - tablogs.TABS[tabId]['tscreated']);
+                delete tablogs.TABS[tabId];
+            }
         }
 
 
@@ -72,12 +74,11 @@
          * Callback attached to the onUpdated tab event.
          */
         function logOnUpdatedEvent(tabId, changeInfo, tab) {
-            if (!tablogs.TABS[tabId]['suspend'] && changeInfo.status == 'loading') {
+            if (!tablogs.TABS[tabId]['suspended'] && changeInfo.status == 'loading') {
                 logEvent(tabId, "onUpdated");
             }
-            if (!(tabId in tablogs.TABS)) {
-                tablogs.TABS[tabId] = {};
-            }
+            tablogs.TABS[tabId]['timestamp'] = Date.now();
+            tablogs.TABS[tabId]['suspended'] = false;
         }
 
 
@@ -86,17 +87,16 @@
          */
         function logOnActivated(activeInfo) {
             var id = activeInfo.tabId;
-            if (!(id in tablogs.TABS)) {
-                tablogs.TABS[id] = {};
+            if (id in tablogs.TABS) {
+                tablogs.TABS[id]['timestamp'] = Date.now();
+                tablogs.TABS[id]['suspended'] = false;
             }
-            tablogs.TABS[id]['timestamp'] = Date.now();
-            tablogs.TABS[id]['suspend'] = false;
             chrome.tabs.get(id, function(tab) {
                 if (undefined != tab) {
                     if (util.isSuspended(tab)) {
                         chrome.tabs.sendMessage(id, {
                             action: 'reloadTab'
-                        }, {});
+                        });
                     }
                 }
             });

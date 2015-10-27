@@ -75,7 +75,7 @@ var stats = (function() {
         getRatio: function() {
             var numCreated = this.getCreated();
             if (numCreated == 0) {
-                return "collecting stats..";
+                return "NA";
             }
             var r = this.getDestroyed() * 1.0 / numCreated;
             return +r.toFixed(2);
@@ -87,7 +87,7 @@ var stats = (function() {
          */
         getNumTabs: function() {
             var avg = util.avg(tablogs.NUM_TABS);
-            return avg == -1 ? "NA" : avg;
+            return +avg.toFixed(2) == -1 ? "NA" : avg;
         },
 
 
@@ -96,7 +96,7 @@ var stats = (function() {
          */
         getTabLifetime: function() {
             var avg = util.avg(tablogs.TAB_LIFETIMES);
-            return avg == -1 ? "NA" : avg;
+            return +avg.toFixed(2) == -1 ? "NA" : avg / 1000.0;
         },
 
 

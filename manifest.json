@@ -1,7 +1,7 @@
 {
   "name": "Tab Logger",
   "description": "Makes tab usage more efficient.",
-  "version": "1.5",
+  "version": "1.6",
   "permissions": ["storage", "unlimitedStorage", "history", "contextMenus", "tabs", "webRequest", "webNavigation", "<all_urls>"],
   "web_accessible_resources": ["src/content/suspended.html"],
   "background": {"scripts": ["src/util.js", "src/filesystem.js", "src/background.js", "src/events.js", "src/stats.js", "src/crypto/jsbn.js", "src/crypto/prng4.js", "src/crypto/rng.js", "src/crypto/rsa.js", "src/crypto/sha256.js"]},

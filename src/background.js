@@ -35,7 +35,7 @@ var tablogs = (function() {
     var REQUESTED_BYTES = 1024 * 1024 * 10;
 
     // Default number of minutes after which an inactive tab is put to sleep.
-    var DEFAULT_TAB_TIME = 15;
+    var DEFAULT_TAB_TIME = 20;
 
     // Default number of tabs after for which the memory saving is enabled
     var DEFAULT_NUM_TABS = 10;
@@ -95,20 +95,8 @@ var tablogs = (function() {
         setHistoryListener();
 
         // Perdiocally check wheter a tab needs to go to sleep.
-        setInterval(function() { putOldTabsToSleep();}, DEFAULT_MIN_TIME * 60 * 1000);
+        setInterval(putOldTabsToSleep, DEFAULT_MIN_TIME * 1000 * 60);
 
-    }
-
-
-    /**
-     * Remove suspended tab from history.
-     */
-    function setHistoryListener(){
-        chrome.history.onVisited.addListener(function (result) {
-            if (result.title == 'SuspendedTab') {
-                chrome.history.deleteUrl(result.url);
-            }
-        });
     }
 
 
@@ -138,13 +126,11 @@ var tablogs = (function() {
      */
     function initializeTabs() {
         chrome.tabs.query({}, function(tabs) {
-            for (var i in tabs) {
-                var tab = tabs[i];
-                if (!tab.active && !tab.pinned) {
-                    tablogs.TABS[tab.id] = {
-                        'timestamp': Date.now()
-                    };
-                }
+            for (var i = 0; i < tabs.length; i++) {
+                tablogs.TABS[tabs[i].id] = {
+                    'timestamp': Date.now(),
+                    'suspended': false
+                };
             }
         });
     }
@@ -176,6 +162,18 @@ var tablogs = (function() {
 
 
     /**
+     * Remove suspended tab from history.
+     */
+    function setHistoryListener(){
+        chrome.history.onVisited.addListener(function (result) {
+            if (result.title.indexOf('SuspendedTab') != -1 || result.title.indexOf('chrome-extension://' + chrome.runtime.id) != -1) {
+                chrome.history.deleteUrl({'url': result.url});
+            }
+        });
+    }
+
+
+    /**
      * Set listener for requests originating at content scripts.
      */
     function setMessageListener() {
@@ -188,11 +186,12 @@ var tablogs = (function() {
                         removed: stats.getDestroyed(),
                         ratio: stats.getRatio(),
                         open: stats.getNumTabs(),
-                        life: stats.getTabLifetime()
+                        lifetime: stats.getTabLifetime()
                     });
                     break;
 
                 case 'tabinfo':
+                    console.log('tabinfo', tablogs.TABS[sender.tab.id]);
                     sendResponse(tablogs.TABS[sender.tab.id]);
                     break;
 
@@ -225,28 +224,33 @@ var tablogs = (function() {
      * Put old tabs to sleep.
      */
     function putOldTabsToSleep() {
-        chrome.tabs.query({}, function(tabs) {
-            if (tablogs.NUM_TABS.length > 100)
-                tablogs.NUM_TABS = tablogs.NUM_TABS.slice(1);
-            tablogs.NUM_TABS.push(tabs.length);                            
-            for (var i in tabs) {
-                var tab = tabs[i];
-                if (!tab.active && !tab.pinned && tab.id in tablogs.TABS) {
-                    chrome.storage.sync.get({
-                        'numTabs': DEFAULT_NUM_TABS,
-                        'minTime': DEFAULT_TAB_TIME,
-                        'exceptionList': DEFAULT_URL_SPECIAL
-                    }, function(item) {
+        chrome.storage.sync.get({
+            'numTabs': DEFAULT_NUM_TABS,
+            'minTime': DEFAULT_TAB_TIME,
+            'exceptionList': DEFAULT_URL_SPECIAL
+        }, function(item) {
+            chrome.tabs.query({}, function(tabs) {
+                if (tablogs.NUM_TABS.length > 100) {
+                    tablogs.NUM_TABS = tablogs.NUM_TABS.slice(1);
+                }
+                tablogs.NUM_TABS.push(tabs.length);                            
+                for (var i = 0; i < tabs.length; i++) {
+                    var tab = tabs[i];
+                    if ((!tab.active) && (!tab.pinned) && (tab.id in tablogs.TABS)) {
                         var timeOpen = Date.now() - tablogs.TABS[tab.id]['timestamp'];
-                        if ((timeOpen > (item.minTime * 60 * 1000)) && (Object.keys(tablogs.TABS).length > item.numTabs)) {
+                        if (timeOpen > item.minTime * 1000 * 60 && Object.keys(tablogs.TABS).length > item.numTabs) {
                             if (item.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
-                                storeTabInfo(tab);
-                                chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
+                                if (!(tablogs.TABS[tab.id].hasOwnProperty('suspended') && tablogs.TABS[tab.id]['suspended'])) {
+                                    storeTabInfo(tab, function() {
+                                        chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
+                                    });
+                                }
                             }
                         }
-                    });
+
+                    }
                 }
-            }
+            });
         });
     }
 
@@ -254,10 +258,11 @@ var tablogs = (function() {
     /**
      * Store tab info to be resumed upon activation.
      */
-    function storeTabInfo(tab) {
+    function storeTabInfo(tab, cbk) {
         tablogs.TABS[tab.id]['title'] = tab.title;
         tablogs.TABS[tab.id]['favicon'] = 'chrome://favicon/' + tab.url;
         tablogs.TABS[tab.id]['suspended'] = true;
+        cbk();
     }
 
 
