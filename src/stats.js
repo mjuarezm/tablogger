@@ -87,7 +87,7 @@ var stats = (function() {
          */
         getNumTabs: function() {
             var avg = util.avg(tablogs.NUM_TABS);
-            return +avg.toFixed(2) == -1 ? "NA" : avg;
+            return avg == -1 ? "NA" : +avg.toFixed(2);
         },
 
 
@@ -96,7 +96,7 @@ var stats = (function() {
          */
         getTabLifetime: function() {
             var avg = util.avg(tablogs.TAB_LIFETIMES);
-            return +avg.toFixed(2) == -1 ? "NA" : avg / 1000.0;
+            return avg == -1 ? "NA" : +(avg / 60000.0).toFixed(2);
         },
 
 
