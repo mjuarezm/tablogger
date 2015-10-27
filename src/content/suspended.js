@@ -35,7 +35,7 @@
         document.title = response.title;
         generateFaviconUri(response.favicon, function(fav) {
             setFavicon(fav);
-        }); 
+        });
     });
 
 

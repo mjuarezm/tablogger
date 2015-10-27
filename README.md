@@ -32,12 +32,12 @@ The extension collects the following attributes:
 
 These are the events that are recorded:
 
-| Name      | Description                                                                |
-| ----------|:--------------------------------------------------------------------------:|
-| onCreated | The user has open a new tab.                                               |
-| onUpdated | The user has updated the tab (e.g., visited a new page with the same tab). |
-| onRemoved | The user has closed a tab.                                                 |
-| onLoaded  | A resouce (e.g., a script, an image, and so on), has been loaded in a tab. |
+| Name      | Description                                                                 |
+| ----------|:---------------------------------------------------------------------------:|
+| onCreated | The user has open a new tab.                                                |
+| onUpdated | The user has updated the tab (e.g., visited a new page with the same tab).  |
+| onRemoved | The user has closed a tab.                                                  |
+| onLoaded  | A resource (e.g., a script, an image, and so on), has been loaded in a tab. |
 
 
 
@@ -54,8 +54,9 @@ We use [public-key cryptography](https://en.wikipedia.org/wiki/Public-key_crypto
 
 We used RSA-2048 with PKCSv1.5 padding, because it achieves a good security/performance tradeoff given our requirements.
 
-The data is also stored in the HTML5 local storage associated to the extension, so that users can see them in plain text.
+We do not intend to protect against a web server with high computational resources able to break RSA-2048 PKCSv1.5. 
 
+The data is also stored in the HTML5 local storage associated to the extension, so that users can see them in plain text.
 
 
 Links

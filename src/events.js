@@ -61,10 +61,10 @@
         function logOnRemovedEvent(tabId, removeInfo) {
             logEvent(tabId, "onRemoved");
             if (tabId in tablogs.TABS && tablogs.TABS[tabId].hasOwnProperty('tscreated')) {
-                if (tablogs.TAB_LIFETIMES.length > 100) {
-                    tablogs.TAB_LIFETIMES = tablogs.TAB_LIFETIMES.slice(1);
+                if (tablogs.STATS['tabLifetime'].length > 100) {
+                    tablogs.STATS['tabLifetime'] = tablogs.STATS['tabLifetime'].slice(1);
                 }
-                tablogs.TAB_LIFETIMES.push(Date.now() - tablogs.TABS[tabId]['tscreated']);
+                tablogs.STATS['tabLifetime'].push(Date.now() - tablogs.TABS[tabId]['tscreated']);
                 delete tablogs.TABS[tabId];
             }
         }

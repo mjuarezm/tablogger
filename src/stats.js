@@ -86,8 +86,8 @@ var stats = (function() {
          * Return average number of tabs.
          */
         getNumTabs: function() {
-            var avg = util.avg(tablogs.NUM_TABS);
-            return avg == -1 ? "NA" : +avg.toFixed(2);
+            var avg = util.avg(tablogs.STATS['numTabs']);
+            return avg == -1 ? "NA" : +avg.toFixed(1);
         },
 
 
@@ -95,8 +95,8 @@ var stats = (function() {
          * Return average tab lifetime.
          */
         getTabLifetime: function() {
-            var avg = util.avg(tablogs.TAB_LIFETIMES);
-            return avg == -1 ? "NA" : +(avg / 60000.0).toFixed(2);
+            var avg = util.avg(tablogs.STATS['tabLifetime']);
+            return avg == -1 ? "NA" : +(avg / 60000.0).toFixed(1);
         },
 
 

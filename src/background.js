@@ -164,10 +164,12 @@ var tablogs = (function() {
     /**
      * Remove suspended tab from history.
      */
-    function setHistoryListener(){
-        chrome.history.onVisited.addListener(function (result) {
+    function setHistoryListener() {
+        chrome.history.onVisited.addListener(function(result) {
             if (result.title.indexOf('SuspendedTab') != -1 || result.title.indexOf('chrome-extension://' + chrome.runtime.id) != -1) {
-                chrome.history.deleteUrl({'url': result.url});
+                chrome.history.deleteUrl({
+                    'url': result.url
+                });
             }
         });
     }
@@ -230,10 +232,10 @@ var tablogs = (function() {
             'exceptionList': DEFAULT_URL_SPECIAL
         }, function(item) {
             chrome.tabs.query({}, function(tabs) {
-                if (tablogs.NUM_TABS.length > 100) {
-                    tablogs.NUM_TABS = tablogs.NUM_TABS.slice(1);
+                if (tablogs.STATS['numTabs'].length > 100) {
+                    tablogs.STATS['numTabs'] = tablogs.STATS['numTabs'].slice(1);
                 }
-                tablogs.NUM_TABS.push(tabs.length);                            
+                tablogs.STATS['numTabs'].push(tabs.length);
                 for (var i = 0; i < tabs.length; i++) {
                     var tab = tabs[i];
                     if ((!tab.active) && (!tab.pinned) && (tab.id in tablogs.TABS)) {
@@ -242,7 +244,9 @@ var tablogs = (function() {
                             if (item.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
                                 if (!(tablogs.TABS[tab.id].hasOwnProperty('suspended') && tablogs.TABS[tab.id]['suspended'])) {
                                     storeTabInfo(tab, function() {
-                                        chrome.tabs.sendMessage(tab.id, {action: 'suspendTab'}, {});
+                                        chrome.tabs.sendMessage(tab.id, {
+                                            action: 'suspendTab'
+                                        }, {});
                                     });
                                 }
                             }
@@ -312,11 +316,11 @@ var tablogs = (function() {
         // Last time a tab event was triggered.
         LAST_TS: Date.now(),
 
-        // Num tabs
-        NUM_TABS: [],
-
-        // Tab lifetimes
-        TAB_LIFETIMES: [],
+        // Stats object
+        STATS: {
+            'numTabs': [],
+            'tabLifetime': []
+        },
 
         // Web server URL
         SERVER_URL: "https://tablog-webfpext.rhcloud.com",

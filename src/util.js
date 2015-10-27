@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 /**
  * @fileoverview This module offers a set of general purpose methods.
  */
@@ -183,7 +183,7 @@ var util = (function() {
             if (l == 0) {
                 return -1;
             }
-            for(var i = 0; i < l; i++ ){
+            for (var i = 0; i < l; i++) {
                 sum += number_list[i];
             }
             return sum / (l * 1.0);
@@ -196,7 +196,7 @@ var util = (function() {
         getDomain: function(url_str) {
             var loc = document.createElement('a');
             loc.href = url_str;
-            return loc.hostname.slice(0,4) == 'www.' ? loc.hostname.slice(4) : loc.hostname;
+            return loc.hostname.slice(0, 4) == 'www.' ? loc.hostname.slice(4) : loc.hostname;
         },
 
 
@@ -215,4 +215,6 @@ var util = (function() {
 })()
 
 // Export to be used in tests
-if (typeof exports !== 'undefined') { exports.util = util}
+if (typeof exports !== 'undefined') {
+    exports.util = util
+}
