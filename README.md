@@ -54,8 +54,6 @@ We use [public-key cryptography](https://en.wikipedia.org/wiki/Public-key_crypto
 
 We used RSA-2048 with PKCSv1.5 padding, because it achieves a good security/performance tradeoff given our requirements.
 
-We do not intend to protect against a web server with high computational resources able to break RSA-2048 PKCSv1.5. 
-
 The data is also stored in the HTML5 local storage associated to the extension, so that users can see them in plain text.
 
 
