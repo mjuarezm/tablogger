@@ -73,7 +73,7 @@ We are PhD students on computer security with the following affiliations:
 
 * Giovanni Cherubin, Royal Holloway University of London <giovanni.cherubin@gmail.com>
 
-* Jamie Hayes, University College London<jamie.hayes.14@ucl.ac.uk>
+* Jamie Hayes, University College London <jamie.hayes.14@ucl.ac.uk>
 
 * Marc Juarez, ESAT/COSIC - KU Leuven <marc.juarez@kuleuven.be>
 

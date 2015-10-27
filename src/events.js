@@ -74,9 +74,14 @@
          * Callback attached to the onUpdated tab event.
          */
         function logOnUpdatedEvent(tabId, changeInfo, tab) {
-            if (tablogs.TABS[tabId].hasOwnProperty('suspended') && !tablogs.TABS[tabId]['suspended']) {
-                if (changeInfo.status == 'loading')
-                    logEvent(tabId, "onUpdated");
+            if (!(tabId in tablogs.TABS)) {
+                tablogs.TABS[tabId] = {};
+                logEvent(tabId, "onUpdated");
+            } else {
+                if (tablogs.TABS[tabId].hasOwnProperty('suspended') && !tablogs.TABS[tabId]['suspended']) {
+                    if (changeInfo.status == 'loading')
+                        logEvent(tabId, "onUpdated");
+                }
             }
             tablogs.TABS[tabId]['timestamp'] = Date.now();
             tablogs.TABS[tabId]['suspended'] = false;
