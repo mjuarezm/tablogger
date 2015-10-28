@@ -2,10 +2,6 @@
 Tab Logger
 ==========
 
-
-Description
------------
-
 The `Tab Logger` chrome extension helps users incrementing their productivity by raising awareness of their tab usage. Users can visualize simple statistics such as the average number of open tabs and the median lifetime of a tab, realizing the inefficiencies of their tab behavior. In addition, the `Tab logger` extension can reduce memory utilization by suspending tabs that have been inactive for a long time. Putting inactive tabs to sleep is especially useful for resource-constrained users who keep long lists of tabs open. For such an intensive tab usage, the `Tab logger` user interface provides a shortcut to close all tabs except the active one.
 
 Users that benefit from this extension can also contribute to research on computer security by sending statistics about their tab usage. Even thoguh there already are a few studies on the usage of browser tabs, these studies have been performed from a usability point of view, and are not suitable for computer security studies. The following list provides the reader with references to previous studies on this topic.
