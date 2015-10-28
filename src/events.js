@@ -65,8 +65,8 @@
                     tablogs.STATS['tabLifetime'] = tablogs.STATS['tabLifetime'].slice(1);
                 }
                 tablogs.STATS['tabLifetime'].push(Date.now() - tablogs.TABS[tabId]['tscreated']);
-                delete tablogs.TABS[tabId];
             }
+            delete tablogs.TABS[tabId];
         }
 
 
