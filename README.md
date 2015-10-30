@@ -48,7 +48,7 @@ All the instances of the extension post the data to a central [web server](https
 
 We use [public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) to encrypt the data. The extension is shipped with the public key, and encrypts the data with it. After collecting 50 events, the extension posts these data via HTTPS to a [web server](https://tablog-webfpext.rhcloud.com). The private key is kept in a secure environment, so that not even the web server can learn the contents of these data. Only the researchers who have access to this secure enviroment can recover the original data. We used JSBN's RSA-2048 PKCSv1.5 implementation.
 
-We use a secret generated at installation time to identify each instance of the extension. This secret is hashed  (SHA256) and sent to the server, where it is hashed again and stored in the database. We also used a cookie that allows the web server for load balancing (provided by OpenShift).
+We use a secret generated at installation time to identify each instance of the extension. This secret is hashed  (SHA256) and sent to the server, where it is hashed again and stored in the database. We also used a cookie that allows the web server for load balancing (issued by [OpenShift](https://www.openshift.com/)).
 
 The data is also stored in the HTML5 local storage associated to the extension, so that users can see them in plain text.
 
