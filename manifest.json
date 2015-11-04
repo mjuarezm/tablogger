@@ -1,7 +1,7 @@
 {
     "name": "Tab Logger",
     "description": "Makes tab usage more efficient.",
-    "version": "2.1",
+    "version": "2.2",
     "permissions": ["storage", "unlimitedStorage", "history", "contextMenus", "tabs", "webRequest", "webNavigation", "<all_urls>"],
     "web_accessible_resources": ["src/content/suspended.html"],
     "background": {
