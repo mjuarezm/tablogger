@@ -193,7 +193,6 @@ var tablogs = (function() {
                     break;
 
                 case 'tabinfo':
-                    console.log('tabinfo', tablogs.TABS[sender.tab.id]);
                     sendResponse(tablogs.TABS[sender.tab.id]);
                     break;
 
@@ -240,7 +239,7 @@ var tablogs = (function() {
                     var tab = tabs[i];
                     if ((!tab.active) && (!tab.pinned) && (tab.id in tablogs.TABS)) {
                         var timeOpen = Date.now() - tablogs.TABS[tab.id]['timestamp'];
-                        if (timeOpen > item.minTime * 1000 * 60 && Object.keys(tablogs.TABS).length > item.numTabs) {
+                        if (timeOpen > item.minTime * 1000 * 60 && tabs.length > item.numTabs) {
                             if (item.exceptionList.indexOf(util.getDomain(tab.url)) == -1) {
                                 if (!(tablogs.TABS[tab.id].hasOwnProperty('suspended') && tablogs.TABS[tab.id]['suspended'])) {
                                     storeTabInfo(tab, function() {
@@ -315,6 +314,9 @@ var tablogs = (function() {
 
         // Last time a tab event was triggered.
         LAST_TS: Date.now(),
+
+        // Temporary records
+        TEMP_RECORDS: [],
 
         // Stats object
         STATS: {
