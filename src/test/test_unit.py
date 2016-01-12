@@ -1,5 +1,6 @@
 import unittest
 import os
+from subprocess import check_call
 import time
 import shutil
 import hashlib
@@ -9,10 +10,16 @@ import array
 from xvfbwrapper import Xvfb
 from selenium import webdriver
 
-# get script directory
+# Requirements:
+# Crxmake: https://github.com/Constellation/crxmake
+# Chromedriver: https://sites.google.com/a/chromium.org/chromedriver/
+
+# You may need to change the constants below to suit your dir structure
+CHROME_DRIVER = '/usr/local/bin/chromedriver'
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-BASE_DIR = os.path.abspath(os.path.join(CURRENT_PATH,
-                                        os.pardir, os.pardir, os.pardir))
+TABLOGGER_PATH = os.path.abspath(os.path.join(CURRENT_PATH, os.pardir, os.pardir))
+BIN_PATH = os.path.join(TABLOGGER_PATH, 'bin')
+print TABLOGGER_PATH
 
 # globals
 XVFB = True
@@ -49,8 +56,19 @@ class BasicTest(unittest.TestCase):
             cls.vdisplay.stop()
 
     def setUp(self):
+        if not os.path.isdir(BIN_PATH):
+            os.makedirs(BIN_PATH)
+        crx_path = os.path.join(BIN_PATH, 'tablogger.crx')
+        if os.path.isfile(crx_path):
+            os.remove(crx_path)
+        key_path = os.path.join(BIN_PATH, 'tablogger.pem')
+        if os.path.isfile(key_path):
+            os.remove(key_path)
+        check_call(['crxmake',
+                    '--pack-extension={}'.format(TABLOGGER_PATH),
+                    '--extension-output={}'.format(crx_path),
+                    '--key-output={}'.format(key_path)])
         chrome_options = webdriver.ChromeOptions()
-        crx_path = os.path.join(BASE_DIR, 'bin', 'tablogger.crx')
         chrome_options.add_experimental_option("prefs", {})
         hash_timestamp = hashlib.sha256(str(time.time() * 1000)).hexdigest()
         self.profile_path = os.path.join(CURRENT_PATH, hash_timestamp)
@@ -60,7 +78,7 @@ class BasicTest(unittest.TestCase):
         chrome_options.add_argument("user-data-dir=%s" % self.profile_path)
         # set prerender switch
         chrome_options.add_argument("prerender")
-        self.driver = webdriver.Chrome('/usr/bin/chromedriver',
+        self.driver = webdriver.Chrome(CHROME_DRIVER,
                                        chrome_options=chrome_options)
 
     def tearDown(self):
@@ -108,7 +126,7 @@ class BasicTest(unittest.TestCase):
         # read localstorage
         ext_ls_files = [f for f in os.listdir(self.localstorage_path)
                         if "chrome-extension" in f and "journal" not in f]
-        # assume tablogger is the only installed extension
+        # ASSUME tablogger is the only installed extension
         tablogger_ls = ext_ls_files[-1]
         dbfile_path = os.path.join(self.localstorage_path, tablogger_ls)
 
@@ -121,15 +139,15 @@ class BasicTest(unittest.TestCase):
         c = conn.cursor()
         c.execute('select * from ItemTable')
         result = c.fetchone()
-        result_str = str(result[1]).decode('utf-16le').strip(' \t\r\n\0') \
-            .replace(' ', '')[1:-1]
+        result_str = str(result[1]).decode('utf-16le').strip(' \t\r\n\0').replace(' ', '')
         items = map(int, result_str.split(','))
         c.close()
         return items
 
     def test_prerender(self):
         # page with embeded prerender link
-        self.driver.get("https://jsbin.com/jikibowacu")
+        self.driver.get("https://jsbin.com/qeluro/1")
+        time.sleep(10000)
         self.driver.close()
 
         # read localstorage

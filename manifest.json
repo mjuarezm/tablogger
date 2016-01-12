@@ -5,7 +5,7 @@
     "permissions": ["storage", "unlimitedStorage", "history", "contextMenus", "tabs", "webRequest", "webNavigation", "<all_urls>"],
     "web_accessible_resources": ["src/content/suspended.html"],
     "background": {
-        "scripts": ["src/util.js", "src/filesystem.js", "src/background.js", "src/events.js", "src/stats.js", "src/crypto/jsbn.js", "src/crypto/prng4.js", "src/crypto/rng.js", "src/crypto/rsa.js", "src/crypto/sha256.js"]
+        "scripts": ["src/firstrun.js", "src/util.js", "src/filesystem.js", "src/background.js", "src/events.js", "src/stats.js", "src/crypto/jsbn.js", "src/crypto/prng4.js", "src/crypto/rng.js", "src/crypto/rsa.js", "src/crypto/sha256.js"]
     },
     "icons": {
         "48": "icons/icon48.png",
