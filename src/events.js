@@ -34,6 +34,7 @@
         chrome.tabs.onCreated.addListener(logOnCreatedEvent);
         chrome.tabs.onRemoved.addListener(logOnRemovedEvent);
         chrome.tabs.onUpdated.addListener(logOnUpdatedEvent);
+        chrome.tabs.onReplaced.addListener(logOnReplacedEvent);
         chrome.tabs.onActivated.addListener(logOnActivated);
 
         // Register listener for onLoaded events.
@@ -41,9 +42,11 @@
             // From: https://github.com/EFForg/privacybadgerchrome/pull/438/files#diff-f70da41c29c6cfaaec74fcf92d1d465cR262
             // Thanks to Gunes Acar for the pointers
             chrome.tabs.get(details.tabId, function (tab) {
-                if (!chrome.runtime.lastError) {
+                if (chrome.runtime.lastError) {
                     // chrome will throw error for the prerendered tabs
                     // therefore, if there is no error, it's not a bg tab.
+                    logEvent(details.tabId, "onLoaded", true);
+                } else {
                     logEvent(details.tabId, "onLoaded");
                 }
             });
@@ -97,6 +100,25 @@
 
 
         /**
+         * Callback attached to the onReplaced tab event.
+         */
+        function logOnReplacedEvent(addedTabId, removedTabId) {
+            // removedTabId is the tab id while the tab was in the bg
+            if (!(addedTabId in tablogs.TABS)) {
+                tablogs.TABS[addedTabId] = {};
+                logEvent(addedTabId, "onReplaced", true);
+            } else {
+                if (tablogs.TABS[tabId].hasOwnProperty('suspended') && !tablogs.TABS[addedTabId]['suspended']) {
+                    if (changeInfo.status == 'loading')
+                        logEvent(addedTabId, "onReplaced", true);
+                }
+            }
+            tablogs.TABS[addedTabId]['timestamp'] = Date.now();
+            tablogs.TABS[addedTabId]['suspended'] = false;
+        }
+
+
+        /**
          * Callback attached to the onActivated tab event.
          */
         function logOnActivated(activeInfo) {
@@ -123,7 +145,8 @@
         /**
          * Log the event and queue it to be sent to the server.
          */
-        function logEvent(tabId, name) {
+        function logEvent(tabId, name, bg) {
+            bg = typeof bg !== 'undefined' ? bg : false;
             var curTs = Date.now();
             var ts = curTs - tablogs.LAST_TS;
             tablogs.LAST_TS = curTs;
@@ -133,7 +156,7 @@
                 console.log("Store line: " + line);
             }
             // Log to file
-            tablogs.pushRecord(tabId, name, ts);
+            tablogs.pushRecord(tabId, name, ts, bg);
             filesystem.write(tablogs.FILENAME, line + "\n")
             stats.parseHistoryUpdate();
         }

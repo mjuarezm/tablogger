@@ -59,14 +59,15 @@ var tablogs = (function () {
         'onCreated': 0x0,
         'onLoaded': 0x1,
         'onUpdated': 0x2,
-        'onRemoved': 0x3
+        'onRemoved': 0x3,
+        'onReplaced': 0x4
     };
 
     // Maximum time offset (im ms) between two consecutive events.
-    var MAX_OFFET = 4194303;  // approx. 1 hour
+    var MAX_OFFET = 67108863;  // approx. 18 hours
 
     // Maximum tab id number in a session.
-    var MAX_TABID = 65535;
+    var MAX_TABID = 262143;
 
 
     /* Main entry of the module. */
@@ -297,13 +298,13 @@ var tablogs = (function () {
 
 
     /**
-     * Encode tab stats to fit 5 Bytes
+     * Encode tab stats to fit 6 Bytes
      */
-    function encodeAttributes(tabid, name, offset) {
-        /* Encoding format (5 Bytes)
-         * +-----------------+------------------+----------------+
-         * | tabid (2 Bytes) | offset (22 bits) | event (2 bits) |
-         * +-----------------+------------------+----------------+
+    function encodeAttributes(tabid, name, offset, bg) {
+        /* Encoding format (6 Bytes)
+         * +-----------------+------------------+----------------+------------+
+         * | tabid (18 bits) | offset (26 bits) | event (3 bits) | bg (1 bit) |
+         * +-----------------+------------------+----------------+------------+
          */
         if (offset > MAX_OFFET) {
             offset = 0;
@@ -311,8 +312,10 @@ var tablogs = (function () {
         if (tabid > MAX_TABID) {
             tabid = 0;
         }
-        low = offset << 0x2 | EVENT[name];
-        return util.getIntBytes(tabid, 2).concat(util.getIntBytes(low, 3));
+        event_bits = EVENT[name] << 0x1 | + bg;
+        offset_bits = offset << 0x3 | event_bits;
+        tab_bits = tabid << 0x1E | offset_bits;
+        return util.getIntBytes(tab_bits, 6);
     }
 
 
@@ -382,8 +385,9 @@ var tablogs = (function () {
          * Send tab usage statistics in a POST HTTPS request to the web server.
          */
         postToServer: function (batch) {
+            var version = chrome.app.getDetails().version;
             var extidSHA256 = Sha256.hash(this.RANDOMID);
-            var request = "id=" + extidSHA256 + "&batch=" + batch;
+            var request = "id=" + extidSHA256 + "&batch=" + batch + "&version=" + version;
             util.sendRequest(this.SERVER_URL, request, "POST", function () {
                 // Reset storage
                 tablogs.resetTmp();
@@ -395,9 +399,9 @@ var tablogs = (function () {
         /**
          * Push record to local storage and send it to the web server.
          */
-        pushRecord: function (tabId, name, ts) {
+        pushRecord: function (tabId, name, ts, bg) {
             // Push to temporary object;
-            this.TEMP_RECORDS = this.TEMP_RECORDS.concat(encodeAttributes(tabId, name, ts));
+            this.TEMP_RECORDS = this.TEMP_RECORDS.concat(encodeAttributes(tabId, name, ts, bg));
             // Copy temp records object to Chrome's storage API.
             chrome.storage.local.set({
                 'tempRecords': this.TEMP_RECORDS
