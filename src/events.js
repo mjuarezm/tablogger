@@ -24,9 +24,9 @@
 /**
  * @fileoverview This script instruments the events that we want to intercept.
  */
-(function() {
+(function () {
     // Adds a small delay to make sure tablogs module has been instantiated.
-    setTimeout((function() {
+    setTimeout((function () {
 
         // Set the listeners for tab events.
         // FIXME: when the user creates a new tab, two events (create and update)
@@ -37,8 +37,16 @@
         chrome.tabs.onActivated.addListener(logOnActivated);
 
         // Register listener for onLoaded events.
-        chrome.webNavigation.onCompleted.addListener(function(details) {
-            logEvent(details.tabId, "onLoaded");
+        chrome.webNavigation.onCompleted.addListener(function (details) {
+            // From: https://github.com/EFForg/privacybadgerchrome/pull/438/files#diff-f70da41c29c6cfaaec74fcf92d1d465cR262
+            // Thanks to Gunes Acar for the pointers
+            chrome.tabs.get(details.tabId, function (tab) {
+                if (!chrome.runtime.lastError) {
+                    // chrome will throw error for the prerendered tabs
+                    // therefore, if there is no error, it's not a bg tab.
+                    logEvent(details.tabId, "onLoaded");
+                }
+            });
         });
 
 
@@ -97,7 +105,7 @@
                 tablogs.TABS[id]['timestamp'] = Date.now();
                 tablogs.TABS[id]['suspended'] = false;
             }
-            chrome.tabs.get(id, function(tab) {
+            chrome.tabs.get(id, function (tab) {
                 if (undefined != tab) {
                     if (util.isSuspended(tab)) {
                         chrome.tabs.sendMessage(id, {
