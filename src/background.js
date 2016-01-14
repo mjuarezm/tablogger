@@ -64,7 +64,7 @@ var tablogs = (function () {
     };
 
     // Maximum time offset (im ms) between two consecutive events.
-    var MAX_OFFET = 67108863;  // approx. 18 hours
+    var MAX_OFFSET = 67108863;  // approx. 18 hours
 
     // Maximum tab id number in a session.
     var MAX_TABID = 262143;
@@ -305,17 +305,35 @@ var tablogs = (function () {
          * +-----------------+------------------+----------------+------------+
          * | tabid (18 bits) | offset (26 bits) | event (3 bits) | bg (1 bit) |
          * +-----------------+------------------+----------------+------------+
+         *
+         * We need to split the messages in 2 Bytes (low) + 4 Bytes (Bytes)
+         * because largest int for binary operations is 2^32-1 in JS.
+         *
          */
-        if (offset > MAX_OFFET) {
+        var lowNumBytes = 4;
+        var highNumBytes = 2;
+        var byteLen = 8;
+        var tabidLen = 18;
+        var offsetLen = 26;
+        var eventLen = 3;
+        var bgLen = 1;
+        if (offset > MAX_OFFSET) {
             offset = 0;
         }
         if (tabid > MAX_TABID) {
             tabid = 0;
         }
-        event_bits = EVENT[name] << 0x1 | + bg;
-        offset_bits = offset << 0x3 | event_bits;
-        tab_bits = tabid << 0x1E | offset_bits;
-        return util.getIntBytes(tab_bits, 6);
+        var highOffset = tabidLen - (highNumBytes * byteLen);
+        var lowOffset = bgLen;
+        var high = tabid >> highOffset;
+        var low = EVENT[name] << lowOffset | + bg;
+        lowOffset += eventLen;
+        low = offset << lowOffset | low;
+        lowOffset += offsetLen;
+        low = (tabid & highOffset) << lowOffset | low;
+        var lowBytes = util.getIntBytes(low, lowNumBytes);
+        var highBytes = util.getIntBytes(high, highNumBytes);
+        return highBytes.concat(lowBytes);
     }
 
 
