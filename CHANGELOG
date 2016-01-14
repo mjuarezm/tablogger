@@ -1,0 +1,10 @@
+version 3.0
+
+* Flag events that originate in background tabs such as tabs used for prerendering pages.
+* Record 'onReplaced' events. A tab is replaced if it was prerendered in the background and then brought to the front (user clicked the prerendered link).
+* Change encoding of events to optimize bandwidth use.
+* Send instance version in the HTTP POST to distinguish new data from previous instances.
+* Add new table in database to store new data and keep isolated from old data.
+* Modify parsing function to be backward compatible with the old data format (no prerender awareness).
+* Add test in Python to drive Chrome with Selenium's chromedriver and test the extension's response to prerendering.
+
